@@ -19,9 +19,9 @@ except ModuleNotFoundError:  # pragma: no cover
     pipeline = None  # type: ignore[assignment]
 
 try:
-    from . import get_cache_dir
+    from . import get_models_dir
 except ImportError:
-    from __init__ import get_cache_dir
+    from __init__ import get_models_dir
 
 
 def _sha256_str(s: str) -> str:
@@ -62,7 +62,8 @@ class TextSummarizer:
 
     def __init__(self, config: SummarizerConfig | None = None):
         self.config = config or SummarizerConfig()
-        self._cache_path = get_cache_dir() / "summarizer_cache.pkl"
+        # Store cached summaries under ai_suite/models/
+        self._cache_path = get_models_dir() / "summarizer_cache.pkl"
         self._cache = _safe_pickle_load(self._cache_path, default={})
 
     @staticmethod

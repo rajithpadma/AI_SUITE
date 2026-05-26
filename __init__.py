@@ -12,11 +12,25 @@ from __future__ import annotations
 from pathlib import Path
 
 
+def get_models_dir() -> Path:
+    """
+    Directory where all model-related artifacts are stored.
+
+    This includes:
+    - Pickled caches for summarization / scraping / speech-to-text
+    - Any future .pkl / .h5 models produced by the three AI modules
+    """
+    models_dir = Path(__file__).resolve().parent / "models"
+    models_dir.mkdir(parents=True, exist_ok=True)
+    return models_dir
+
+
 def get_cache_dir() -> Path:
-    """Return a persistent cache directory inside the repo."""
-    cache_dir = Path(__file__).resolve().parent / ".cache"
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    return cache_dir
+    """
+    Backwards-compatible alias used by older code.
+    Internally we now store caches inside `models/`.
+    """
+    return get_models_dir()
 
 
 def get_outputs_dir() -> Path:
@@ -26,5 +40,6 @@ def get_outputs_dir() -> Path:
     return outputs_dir
 
 
-__all__ = ["get_cache_dir", "get_outputs_dir"]
+__all__ = ["get_models_dir", "get_cache_dir", "get_outputs_dir"]
+
 

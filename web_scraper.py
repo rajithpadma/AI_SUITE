@@ -12,9 +12,9 @@ import requests
 from bs4 import BeautifulSoup
 
 try:
-    from . import get_cache_dir
+    from . import get_models_dir
 except ImportError:
-    from __init__ import get_cache_dir
+    from __init__ import get_models_dir
 
 
 def _sha256_str(s: str) -> str:
@@ -51,7 +51,8 @@ class WebArticleScraper:
 
     def __init__(self, config: ScraperConfig | None = None):
         self.config = config or ScraperConfig()
-        self._cache_path = get_cache_dir() / "web_scraper_cache.pkl"
+        # Store scraper cache under ai_suite/models/
+        self._cache_path = get_models_dir() / "web_scraper_cache.pkl"
         self._cache = _safe_pickle_load(self._cache_path, default={})
 
     def _clean_text(self, s: str) -> str:

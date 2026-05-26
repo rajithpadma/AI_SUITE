@@ -27,9 +27,9 @@ except ModuleNotFoundError:  # pragma: no cover
     sr = None  # type: ignore[assignment]
 
 try:
-    from . import get_cache_dir, get_outputs_dir
+    from . import get_models_dir, get_outputs_dir
 except ImportError:
-    from __init__ import get_cache_dir, get_outputs_dir
+    from __init__ import get_models_dir, get_outputs_dir
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -73,7 +73,8 @@ class SpeechToText:
         self.cache_enabled = cache_enabled
         if sr is None:  # pragma: no cover
             raise RuntimeError("speech_recognition is required. Run: pip install SpeechRecognition")
-        self._cache_path = get_cache_dir() / "speech_transcripts_cache.pkl"
+        # Save STT transcript cache under ai_suite/models/
+        self._cache_path = get_models_dir() / "speech_transcripts_cache.pkl"
         self._cache = _safe_pickle_load(self._cache_path, default={}) if cache_enabled else {}
 
     def transcribe_wav_bytes(
@@ -167,7 +168,8 @@ class NeuralStyleTransfer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._vgg = self._load_vgg19_features()
 
-        self._cache_index_path = get_cache_dir() / "nst_cache_index.pkl"
+        # Cache index for NST outputs lives under ai_suite/models/
+        self._cache_index_path = get_models_dir() / "nst_cache_index.pkl"
         self._cache_index = _safe_pickle_load(self._cache_index_path, default={})
 
         self._mean = torch.tensor([0.485, 0.456, 0.406], device=self.device).view(1, 3, 1, 1)

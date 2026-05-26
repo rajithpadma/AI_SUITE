@@ -64,14 +64,34 @@ tab_summarize, tab_scrape, tab_stt_nst = st.tabs(
 with tab_summarize:
 
     st.subheader("📝 Text Summarizer")
-    st.write("Summarize either pasted text or a provided article URL.")
+    st.write("Summarize content from a URL, pasted text, or an uploaded text file.")
 
-    url_input = st.text_input("Article URL (optional)")
-
-    text_input = st.text_area(
-        "Or paste the article text (optional)",
-        height=200
+    input_mode = st.radio(
+        "Choose input method",
+        ["URL", "Pasted text", "Upload .txt file"],
+        index=0,
+        horizontal=True,
     )
+
+    url_input = ""
+    text_input = ""
+    uploaded_text = None
+
+    if input_mode == "URL":
+        url_input = st.text_input("Article URL")
+    elif input_mode == "Pasted text":
+        text_input = st.text_area(
+            "Paste the article text",
+            height=200,
+        )
+    else:
+        uploaded_file = st.file_uploader("Upload a .txt file", type=["txt"])
+        if uploaded_file is not None:
+            try:
+                uploaded_text = uploaded_file.read().decode("utf-8", errors="ignore")
+            except Exception:
+                st.error("Could not read the uploaded file as UTF-8 text.")
+                uploaded_text = None
 
     col1, col2, col3 = st.columns(3)
 
@@ -119,23 +139,17 @@ with tab_summarize:
 
         try:
 
-            if url_input.strip():
-
+            # Resolve text based on selected input mode
+            if input_mode == "URL" and url_input.strip():
                 status.write("Scraping article text...")
-
-                title, article_text = scraper.fetch(
-                    url_input.strip()
-                )
-
+                title, article_text = scraper.fetch(url_input.strip())
                 st.write("### Title")
                 st.write(title)
-
                 text_to_summarize = article_text
-
+            elif input_mode == "Pasted text":
+                text_to_summarize = (text_input or "").strip()
             else:
-                text_to_summarize = (
-                    text_input or ""
-                ).strip()
+                text_to_summarize = (uploaded_text or "").strip()
 
             if not text_to_summarize:
                 st.error(
@@ -163,12 +177,25 @@ with tab_summarize:
 # ===================================================
 with tab_scrape:
 
-    st.subheader("🌐 Article URL Scraper")
+    st.subheader("🌐 Article Scraper")
     st.write(
-        "Enter an article URL; the app extracts and cleans the paragraph text."
+        "Provide either an article URL or upload an HTML file; the app extracts and cleans the paragraph text."
     )
 
-    url_input_2 = st.text_input("Article URL")
+    scrape_mode = st.radio(
+        "Source type",
+        ["URL", "Upload HTML file"],
+        index=0,
+        horizontal=True,
+    )
+
+    url_input_2 = ""
+    html_upload = None
+
+    if scrape_mode == "URL":
+        url_input_2 = st.text_input("Article URL")
+    else:
+        html_upload = st.file_uploader("Upload an HTML file", type=["html", "htm"])
 
     scrape_btn = st.button(
         "Scrape",
@@ -180,10 +207,21 @@ with tab_scrape:
         scraper = get_scraper()
 
         try:
+            if scrape_mode == "URL":
+                title, text = scraper.fetch(url_input_2.strip())
+            else:
+                if html_upload is None:
+                    st.error("Please upload an HTML file.")
+                    st.stop()
 
-            title, text = scraper.fetch(
-                url_input_2.strip()
-            )
+                from bs4 import BeautifulSoup as _BS
+
+                raw_html = html_upload.read().decode("utf-8", errors="ignore")
+                soup = _BS(raw_html, "html.parser")
+                title_tag = soup.find("title")
+                title = title_tag.get_text(strip=True) if title_tag else "(no title)"
+                paragraphs = [p.get_text(" ", strip=True) for p in soup.find_all("p")]
+                text = " ".join(p for p in paragraphs if p).strip()
 
             st.write("### Title")
             st.write(title)
