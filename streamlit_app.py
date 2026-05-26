@@ -2,7 +2,6 @@ import streamlit as st
 from PIL import Image
 
 from text_summarizer import TextSummarizer
-from web_scraper import WebArticleScraper
 from speech_to_text_and_neural_style_transfer import (
     NeuralStyleTransfer,
     NSTConfig,
