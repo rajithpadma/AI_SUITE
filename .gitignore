@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+*.pyc
+
+.cache/
+.outputs/
+*.wav
+*.txt
+*.jpg
+*.png
+*.pkl
