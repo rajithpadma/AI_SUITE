@@ -1,9 +1,13 @@
-streamlit==1.16.0
-requests==2.28.1
-beautifulsoup4==4.11.1
-transformers==4.23.1
+streamlit==1.57.0
+requests==2.32.3
+beautifulsoup4==4.13.4
+transformers==4.41.2
 torch
 torchvision
 pillow
 numpy
 SpeechRecognition
+sentencepiece
+safetensors
+tokenizers>=0.19.1
+lxml
